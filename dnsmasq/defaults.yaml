@@ -1,3 +1,5 @@
 dnsmasq:
   pkg: dnsmasq
   service: dnsmasq
+  config_dir: /etc/dnsmasq.d
+  config_file: /etc/dnsmasq.conf
