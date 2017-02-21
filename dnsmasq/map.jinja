@@ -1,0 +1,22 @@
+{% import_yaml "dnsmasq/defaults.yaml" as defaults %}
+{% import_yaml "dnsmasq/osmap.yaml" as osmap %}
+{% import_yaml "dnsmasq/codenamemap.yaml" as codemap %}
+
+{# get the settings for the os_family grain #}
+{% set osfam = salt['grains.filter_by'](osmap) or {} %}
+{# get the settings for the oscodename grain, os_family data will override
+    oscodename data #}
+{% set oscode = salt['grains.filter_by'](codemap,
+                                         grain='oscodename',
+                                         merge=osfam) or {} %}
+
+{# merge the os family/codename specific data over the defaults #}
+{% do defaults.dnsmasq.update(oscode) %}
+
+{# merge the pillar:lookup dict into the defaults/os specific dict #}
+{% set lookup = salt['pillar.get']('dnsmasq:lookup',
+                                   default=defaults.dnsmasq,
+                                   merge=True) %}
+
+{# merge the actual dnsmasq pillar into the above combined dict #}
+{% set dnsmasq = salt['pillar.get']('dnsmasq', default=lookup, merge=True) %}
